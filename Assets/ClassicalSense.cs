@@ -413,7 +413,7 @@ public class ClassicalSense : MonoBehaviour
                 play();
             } else
             {
-                yield return "sendtochaterror The play button is still on cooldown!";
+                yield return "sendtochaterror!h The play button is still on cooldown!";
             }
         } else if(command.StartsWith("left"))
         {
@@ -421,7 +421,7 @@ public class ClassicalSense : MonoBehaviour
             int amount = 1;
             if((editedLeft.Length == 2) && (!(char.IsDigit(editedLeft[1])) || (editedLeft[1] - '0' < 0)))
             {
-                yield return "sendtocharerror Please input how many steps you want to move left. Input no argument if you want to go by 1.";
+                yield return "sendtocharerror!h Please input how many steps you want to move left. Input no argument if you want to go by 1.";
             } else if(editedLeft.Length == 2)
             {
                 amount = editedLeft[1] - '0';
@@ -439,7 +439,7 @@ public class ClassicalSense : MonoBehaviour
             int amount = 1;
             if ((editedRight.Length == 2) && (!(char.IsDigit(editedRight[1])) || (editedRight[1] - '0' < 0)))
             {
-                yield return "sendtocharerror Please input how many steps you want to move right. Input no argument if you want to go by 1.";
+                yield return "sendtocharerror!h Please input how many steps you want to move right. Input no argument if you want to go by 1.";
             }
             else if (editedRight.Length == 2)
             {
