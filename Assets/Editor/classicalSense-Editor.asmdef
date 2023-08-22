@@ -1,10 +1,10 @@
 {
-  "name": "classicalSense-Editor",
-  "references": [
-    "classicalSense"
-  ],
-  "includePlatforms": [
-    "Editor"
-  ],
-  "excludePlatforms": []
+    "name": "classicalSense-Editor",
+    "references": [
+        "classicalSense"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
 }
