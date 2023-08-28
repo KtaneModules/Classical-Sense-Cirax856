@@ -410,7 +410,9 @@ public class ClassicalSense : MonoBehaviour
             if(playCooldown >= 30f)
             {
                 yield return null;
-                play();
+                playButton.OnInteract();
+                yield return new WaitForSeconds(0.02f);
+                playButton.OnInteractEnded();
             } else
             {
                 yield return "sendtochaterror!h The play button is still on cooldown!";
@@ -462,5 +464,32 @@ public class ClassicalSense : MonoBehaviour
             yield return new WaitForSeconds(5.2f);
             playButton.OnInteractEnded();
         }
+    }
+
+    private IEnumerator TwitchHandleForcedSolve()
+    {
+        if(index > solutionIndex)
+        {
+            for(int i = 0; i < (index - solutionIndex); i++)
+            {
+                yield return null;
+                leftArrow.OnInteract();
+                yield return new WaitForSeconds(0.05f);
+            }
+        }
+        else if(index < solutionIndex)
+        {
+            for(int i = 0; i < (solutionIndex - index); i++)
+            {
+                yield return null;
+                rightArrow.OnInteract();
+                yield return new WaitForSeconds(0.05f);
+            }
+        }
+
+        yield return new WaitForSeconds(0.2f);
+
+        yield return null;
+        submitButton.OnInteract();
     }
 }
