@@ -27,14 +27,14 @@ public class ClassicalSense : MonoBehaviour
     private float resetTimer = 0f;
     private bool alreadyReset = false;
 
-    private float playCooldown = 0f;
-
     private bool isPlaying;
     private string playing;
 
     private bool isSolved = false;
 
     private Coroutine resetCoroutine;
+
+    private bool timerDone = false;
 
     // piece audioclips
     [SerializeField] private AudioClip[] Nutcracker;
@@ -229,21 +229,15 @@ public class ClassicalSense : MonoBehaviour
             {
                 if (soundCoroutine != null) StopCoroutine(soundCoroutine);
 
-                if (playCooldown != 30f)
+                soundCoroutine = StartCoroutine(PlaySnippet(clips[solutionIndex][randomPlays[playIndex]]));
+
+                if (playIndex == 0)
                 {
-                    soundCoroutine = StartCoroutine(PlaySnippet(clips[solutionIndex][randomPlays[playIndex]]));
-
-                    if (playIndex == 0)
-                    {
-                        playIndex = 1;
-                    }
-                    else
-                    {
-                        playIndex = 0;
-                    }
-
-                    playCooldown = 0f;
-                    cooldown();
+                    playIndex = 1;
+                }
+                else
+                {
+                    playIndex = 0;
                 }
             }
         }
@@ -306,13 +300,14 @@ public class ClassicalSense : MonoBehaviour
 
     private IEnumerator trackTimer()
     {
-        while (true)
+        while (!timerDone)
         {
             yield return null;
             resetTimer += Time.deltaTime;
-            if (resetTimer >= 5f && resetTimer <= 5.2f)
+            if (resetTimer >= 5f)
             {
                 audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
+                timerDone = true;
             }
         }
     }
@@ -329,7 +324,7 @@ public class ClassicalSense : MonoBehaviour
     {
         if(!isSolved)
         {
-            StopCoroutine(resetCoroutine);
+            if(resetCoroutine != null) StopCoroutine(resetCoroutine);
 
             if (resetTimer < 5f)
             {
@@ -340,6 +335,7 @@ public class ClassicalSense : MonoBehaviour
                 reset();
             }
             resetTimer = 0f;
+            timerDone = false;
         }
     }
 
@@ -383,19 +379,6 @@ public class ClassicalSense : MonoBehaviour
         isPlaying = false;
     }
 
-    private IEnumerator cooldown()
-    {
-        while(true)
-        {
-            playCooldown += Time.deltaTime;
-            if(playCooldown >= 30f)
-            {
-                playCooldown = 30f;
-                yield break;
-            }
-        }
-    }
-
     // twitch plays
 #pragma warning disable 0414
     readonly private string TwitchHelpMessage = "Listen to the snippet using \"!{0} play\", cycle through the pieces using \"!{0} left [amount]\" and \"{0} right [amount]\" (deafult is 1 without the argument). Submit your answer using \"!{0} submit\". You can reset the module using \"!{0} reset\".";
@@ -407,16 +390,10 @@ public class ClassicalSense : MonoBehaviour
 
         if(command.StartsWith("play") || command.StartsWith("listen"))
         {
-            if(playCooldown >= 30f)
-            {
-                yield return null;
-                playButton.OnInteract();
-                yield return new WaitForSeconds(0.02f);
-                playButton.OnInteractEnded();
-            } else
-            {
-                yield return "sendtochaterror!h The play button is still on cooldown!";
-            }
+            yield return null;
+            playButton.OnInteract();
+            yield return new WaitForSeconds(0.02f);
+            playButton.OnInteractEnded();
         } else if(command.StartsWith("left"))
         {
             string editedLeft = command.Remove(0, 4);
@@ -468,9 +445,12 @@ public class ClassicalSense : MonoBehaviour
 
     private IEnumerator TwitchHandleForcedSolve()
     {
+        int difference;
+
         if(index > solutionIndex)
         {
-            for(int i = 0; i < (index - solutionIndex); i++)
+            difference = index - solutionIndex;
+            for(int i = 0; i < difference; i++)
             {
                 yield return null;
                 leftArrow.OnInteract();
@@ -479,7 +459,8 @@ public class ClassicalSense : MonoBehaviour
         }
         else if(index < solutionIndex)
         {
-            for(int i = 0; i < (solutionIndex - index); i++)
+            difference = solutionIndex - index;
+            for(int i = 0; i < difference; i++)
             {
                 yield return null;
                 rightArrow.OnInteract();
