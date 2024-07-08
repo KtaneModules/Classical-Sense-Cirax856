@@ -130,7 +130,7 @@ public class ClassicalSense : MonoBehaviour
 #pragma warning restore 0414
 
     private void Awake()
-        => solveMaterial.color = new Color(0f, 135f/255f, 68f/255f);
+        => submitButton.gameObject.GetComponent<MeshRenderer>().material = new Material(solveMaterial);
 
     private void Start()
     {
@@ -314,10 +314,10 @@ public class ClassicalSense : MonoBehaviour
             yield return null;
             timer += Time.deltaTime;
 
-            solveMaterial.color = Color.Lerp(solveMaterial.color, targetColor, timer / duration);
+            submitButton.gameObject.GetComponent<MeshRenderer>().material.color = Color.Lerp(submitButton.gameObject.GetComponent<MeshRenderer>().material.color, targetColor, timer / duration);
         }
 
-        solveMaterial.color = targetColor;
+        submitButton.gameObject.GetComponent<MeshRenderer>().material.color = targetColor;
     }
 
     private IEnumerator PlaySnippet(AudioClip sound)
