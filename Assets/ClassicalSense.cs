@@ -56,6 +56,8 @@ public class ClassicalSense : MonoBehaviour
     [SerializeField] private AudioClip clusterChord;
     [SerializeField] private AudioClip solveSound;
 
+    [SerializeField] private Material solveMaterial;
+
     readonly private string[,] pieces = new string[15, 2]
     {
         { "The Nutcracker Suite", "Pyotr Ilyich\nTchaikovsky" },
@@ -127,7 +129,10 @@ public class ClassicalSense : MonoBehaviour
     int moduleId;
 #pragma warning restore 0414
 
-    void Start()
+    private void Awake()
+        => solveMaterial.color = new Color(0f, 135f/255f, 68f/255f);
+
+    private void Start()
     {
         clips = new AudioClip[][]
         {
@@ -196,9 +201,7 @@ public class ClassicalSense : MonoBehaviour
         {
             index++;
             if (index > 14)
-            {
                 index = 0;
-            }
 
             pieceText.text = pieces[index, 0];
             authorText.text = pieces[index, 1];
@@ -209,12 +212,18 @@ public class ClassicalSense : MonoBehaviour
 #pragma warning disable 0414
     private Coroutine clusterCoroutine;
 #pragma warning restore 0414
+    private Coroutine playAnimCoroutine;
+    private Coroutine submitCoroutine;
 
     void play()
     {
         if(!isSolved)
         {
             audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
+
+            if (playAnimCoroutine != null)
+                StopCoroutine(playAnimCoroutine);
+            playAnimCoroutine = StartCoroutine(playAnim());
 
             if (isPlaying)
             {
@@ -224,6 +233,9 @@ public class ClassicalSense : MonoBehaviour
 
                 audioRef?.StopSound();
                 isPlaying = false;
+
+                playButtonText.text = "►";
+                playButtonText.transform.localPosition = new Vector3(0.057f, 1.12f, 0.012f);
             }
             else
             {
@@ -239,8 +251,73 @@ public class ClassicalSense : MonoBehaviour
                 {
                     playIndex = 0;
                 }
+
+                playButtonText.text = "■";
+                playButtonText.transform.localPosition = new Vector3(0f, 1.12f, 0f);
             }
         }
+    }
+
+    private IEnumerator playAnim(float duration = .075f)
+    {
+        float timer = 0f;
+        while (timer < duration)
+        {
+            yield return null;
+            timer += Time.deltaTime;
+
+            playButton.transform.localPosition = Vector3.Lerp(new Vector3(-0.0532f, 0.014f, 0.0588f), new Vector3(-0.0532f, 0.004f, 0.0588f), timer / duration);
+        }
+
+        timer = 0f;
+        while (timer < duration)
+        {
+            yield return null;
+            timer += Time.deltaTime;
+
+            playButton.transform.localPosition = Vector3.Lerp(new Vector3(-0.0532f, 0.004f, 0.0588f), new Vector3(-0.0532f, 0.014f, 0.0588f), timer / duration);
+        }
+
+        playButton.transform.localPosition = new Vector3(-0.0532f, 0.014f, 0.0588f);
+    }
+
+    private IEnumerator submitAnim(float duration = .075f)
+    {
+        float timer = 0f;
+        while (timer < duration)
+        {
+            yield return null;
+            timer += Time.deltaTime;
+
+            submitButton.transform.localPosition = Vector3.Lerp(new Vector3(0.0071f, 0.014f, 0.0588f), new Vector3(0.0071f, 0.004f, 0.0588f), timer / duration);
+        }
+
+        timer = 0f;
+        while (timer < duration)
+        {
+            yield return null;
+            timer += Time.deltaTime;
+
+            submitButton.transform.localPosition = Vector3.Lerp(new Vector3(0.0071f, 0.004f, 0.0588f), new Vector3(0.0071f, 0.014f, 0.0588f), timer / duration);
+        }
+
+        submitButton.transform.localPosition = new Vector3(0.0071f, 0.014f, 0.0588f);
+    }
+
+    private IEnumerator submitColorAnim(float duration = .75f)
+    {
+        Color targetColor = new Color(Random.value, Random.value, Random.value);
+
+        float timer = 0f;
+        while (timer < duration)
+        {
+            yield return null;
+            timer += Time.deltaTime;
+
+            solveMaterial.color = Color.Lerp(solveMaterial.color, targetColor, timer / duration);
+        }
+
+        solveMaterial.color = targetColor;
     }
 
     private IEnumerator PlaySnippet(AudioClip sound)
@@ -263,6 +340,10 @@ public class ClassicalSense : MonoBehaviour
     {
         if(!isSolved)
         {
+            if (submitCoroutine != null)
+                StopCoroutine(submitCoroutine);
+            submitCoroutine = StartCoroutine(submitAnim());
+
             if (index == solutionIndex)
             {
                 isSolved = true;
@@ -272,6 +353,7 @@ public class ClassicalSense : MonoBehaviour
                 if (soundCoroutine != null) StopCoroutine(soundCoroutine);
                 solveCoroutine = StartCoroutine(playSolveSound());
 
+                StartCoroutine(submitColorAnim());
 
                 Debug.LogFormat("[Classical Sense #{0}] Successfully submit the correct piece ({1} by {2}). Module solved.", moduleId, logPieces[solutionIndex, 0], logPieces[solutionIndex, 1]);
                 module.HandlePass();
@@ -315,9 +397,7 @@ public class ClassicalSense : MonoBehaviour
     void playPress()
     {
         if(!alreadyReset && !isSolved)
-        {
             resetCoroutine = StartCoroutine(trackTimer());
-        }
     }
 
     void resetHandler()
@@ -327,13 +407,10 @@ public class ClassicalSense : MonoBehaviour
             if(resetCoroutine != null) StopCoroutine(resetCoroutine);
 
             if (resetTimer < 5f)
-            {
                 play();
-            }
             else
-            {
                 reset();
-            }
+
             resetTimer = 0f;
             timerDone = false;
         }
@@ -357,9 +434,7 @@ public class ClassicalSense : MonoBehaviour
         randomPlays[0] = Random.Range(0, snippets[solutionIndex].Length - 1);
         randomPlays[1] = Random.Range(0, snippets[solutionIndex].Length - 1);
         while (randomPlays[0] == randomPlays[1])
-        {
             randomPlays[1] = Random.Range(0, snippets[solutionIndex].Length - 1);
-        }
 
         playButtonObject.GetComponent<MeshRenderer>().material = blackMaterial;
         playButtonText.color = Color.white;
