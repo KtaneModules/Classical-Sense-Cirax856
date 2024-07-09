@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 783664595a094fc47966153345b58bb9
+guid: 2c33e878176bbba4fabc9eb0dbcdc77c
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -8,9 +8,9 @@ TrueTypeFontImporter:
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
-  fontName: Varela Round
+  fontName: Roboto
   fontNames:
-  - Varela Round
+  - Roboto
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

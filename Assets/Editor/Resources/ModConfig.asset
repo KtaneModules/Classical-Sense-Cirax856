@@ -16,6 +16,6 @@ MonoBehaviour:
   author: Cirax856
   description: Find the correct classical piece by listening to a snippet of it to
     solve the module.
-  version: 1.3.1
+  version: 1.4.0
   outputFolder: build
   previewImage: {fileID: 2800000, guid: 24bba1adde523784880d705685db751b, type: 3}
